@@ -49,9 +49,7 @@ public class Hangman {
     public static String prepareWord() throws IOException{
         URL listFile = Hangman.class.getResource("/wordlist.txt");
         WordList dict = new WordList(listFile);
-        String guessWord = dict.selectWord();    
-        System.out.println(guessWord + " " + guessWord.length());
-        return guessWord;
+        return dict.selectWord();
     }
     
     /**
