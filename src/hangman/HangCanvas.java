@@ -233,6 +233,7 @@ public class HangCanvas extends Canvas{
     public void paint (Graphics g){
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        g.setColor(Color.WHITE);
         drawGallows(g, this.gallowsX, this.gallowsY);
         if(!this.gameStarted){
             drawStartScreen(g);
@@ -271,7 +272,6 @@ public class HangCanvas extends Canvas{
      * @param g - Graphics object.
      */
     private void drawStartScreen(Graphics g){
-        g.setColor(Color.WHITE);
         g.setFont(this.hangFont);
         int halfHead = 20;
         drawHead(g, this.gallowsX, this.gallowsY, halfHead);
@@ -309,7 +309,6 @@ public class HangCanvas extends Canvas{
      * @param y - top left y position.
      */
     private void drawGallows (Graphics g, int x, int y){
-        g.setColor(Color.WHITE);
         // Top line
         g.drawLine(x, y, x+100, y);
         // Main pole
@@ -329,7 +328,6 @@ public class HangCanvas extends Canvas{
      * @param half - radius of the circle (half size);
      */
     private void drawHead(Graphics g, int x, int y, int half){
-        g.setColor(Color.WHITE);
         g.drawOval(x-half, y+half, half*2, half*2);
     }
 
@@ -341,7 +339,6 @@ public class HangCanvas extends Canvas{
      * @param y - starting (top) y position.
      */
     private void drawTorso(Graphics g, int x, int y){
-        g.setColor(Color.WHITE);
         g.drawLine(x, y+60, x, y+130);
     }
 
@@ -353,7 +350,6 @@ public class HangCanvas extends Canvas{
      * @param y - starting y position.
      */
     private void drawArmL(Graphics g, int x, int y){
-        g.setColor(Color.WHITE);
         g.drawLine(x, y+65, x-40, y+90);
     }
 
@@ -365,7 +361,6 @@ public class HangCanvas extends Canvas{
      * @param y - starting y position.
      */
     private void drawArmR(Graphics g, int x, int y){
-        g.setColor(Color.WHITE);
         g.drawLine(x, y+65, x+40, y+90);
     }
 
@@ -377,7 +372,6 @@ public class HangCanvas extends Canvas{
      * @param y - starting y position.
      */
     private void drawLegL(Graphics g, int x, int y){
-        g.setColor(Color.WHITE);
         g.drawLine(x, y+130, x-30, y+180);
     }
 
@@ -389,7 +383,6 @@ public class HangCanvas extends Canvas{
      * @param y - starting y position.
      */
     private void drawLegR(Graphics g, int x, int y){
-        g.setColor(Color.WHITE);
         g.drawLine(x, y+130, x+30, y+180);
     }
     
@@ -399,7 +392,6 @@ public class HangCanvas extends Canvas{
      * @param g - Graphics object.
      */
     private void drawDashes(Graphics g){
-        g.setColor(Color.WHITE);
         int dashWidth = 28;
         int gap = 10;
         int startX = 20;
@@ -417,7 +409,6 @@ public class HangCanvas extends Canvas{
      * @param g - Graphics object.
      */
     private void drawLetters(Graphics g){
-        g.setColor(Color.WHITE);
         g.setFont(this.hangFont);
         String[] letters = new String[this.wordLength];
         int dashWidth = 28;
@@ -441,7 +432,6 @@ public class HangCanvas extends Canvas{
      * @param g - Graphics object.
      */
     private void drawWrongGuesses(Graphics g){
-        g.setColor(Color.WHITE);
         g.setFont(this.smallerFont);
         int dashWidth = 20;
         int gap = 10;

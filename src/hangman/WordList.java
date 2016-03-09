@@ -69,20 +69,26 @@ public class WordList {
      * Get an array of all the words (lines) in the file.
      *
      * @return words - array of words.
-     * @throws IOException
      */
-    public String[] getWords() throws IOException{
-        this.numLines = countLines();
-        String[] words = new String[this.numLines];
+    public String[] getWords(){
+        try{
+            this.numLines = countLines();
+            String[] words = new String[this.numLines];
         
-        BufferedReader read = new BufferedReader(new InputStreamReader(path.openStream()));
-        int i;
-        for (i=0; i<this.numLines; i++) {
-            words[i] = read.readLine();
+            try (BufferedReader read = new BufferedReader(new InputStreamReader(path.openStream()))) {
+                int i;
+                for (i=0; i<this.numLines; i++) {
+                    words[i] = read.readLine();
+                }
+            }
+            return words;
+        }catch(IOException|NullPointerException ex){
+            // If we can't get the wordlist from a file, make up a small one so the game will still work.
+            String[] words = new String[]{"hello","rectangle","megaphone","computer","ankles",
+                                          "random","superior","eight","twelve","freakish"};
+            this.numLines = 10;
+            return words;
         }
-        
-        read.close();
-        return words;
     }
    
     /**
@@ -90,16 +96,16 @@ public class WordList {
      *
      * @return lineCount - number of lines.
      * @throws IOException
+     * @throws NullPointerException
      */
-    public int countLines() throws IOException {        
-        BufferedReader br = new BufferedReader(new InputStreamReader(path.openStream()));
-
-        int lineCount = 0;
-        while (br.readLine() != null){
-            lineCount++;
+    public int countLines() throws IOException, NullPointerException {        
+        int lineCount;
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(path.openStream()))) {
+            lineCount = 0;
+            while (br.readLine() != null){
+                lineCount++;
+            }
         }
-
-        br.close();        
         return lineCount;
     }
     
@@ -107,10 +113,10 @@ public class WordList {
      * Get a random word from the array of words.
      *
      * @return words[i] - random word.
-     * @throws IOException
      */
-    public String selectWord() throws IOException {
-        String[] words = getWords();
+    public String selectWord() {
+         
+        String[] words = getWords();  
         Random rng = new Random();
         int i = rng.nextInt(words.length);
         return words[i];

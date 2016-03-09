@@ -5,7 +5,6 @@
  */
 package hangman;
 
-import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 import javax.swing.JFrame;
@@ -22,9 +21,8 @@ public class Hangman {
      * the user is done playing.
      * 
      * @param args the command line arguments
-     * @throws java.io.IOException
      */
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args){
      
         // Create a canvas
         HangCanvas window = new HangCanvas();        
@@ -44,9 +42,8 @@ public class Hangman {
      * Creates the word list and selects a random word.
      *
      * @return guessWord - the secret word to be guessed.
-     * @throws IOException
      */
-    public static String prepareWord() throws IOException{
+    public static String prepareWord(){
         URL listFile = Hangman.class.getResource("/wordlist.txt");
         WordList dict = new WordList(listFile);
         return dict.selectWord();
@@ -84,9 +81,8 @@ public class Hangman {
      *
      * @param window - the canvas containing graphics and game state information.
      * @param frame - the frame containing the canvas.
-     * @throws IOException
      */
-    public static void playGame(HangCanvas window, JFrame frame) throws IOException{
+    public static void playGame(HangCanvas window, JFrame frame){
         // Create scanner for input
         Scanner scan = new Scanner(System.in);
         // Initial prompt will come up at the same time as the start/rules screen
@@ -94,7 +90,7 @@ public class Hangman {
 
         // Netbeans complains that this assigned value for guessWord is never used,
         // but if I don't assign something here, it complains harder later.
-        String guessWord = "default";
+        String guessWord = "";
         
         String input = getInput(scan);
         // If we get anything other than p/P, just exit.
