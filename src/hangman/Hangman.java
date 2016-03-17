@@ -1,7 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Runs games of Hangman using the HangCanvas and WordList classes.
  */
 package hangman;
 
@@ -44,6 +42,11 @@ public class Hangman {
      * @return guessWord - the secret word to be guessed.
      */
     public static String prepareWord(){
+        // Default list here is a modified version of the English Open Word List 
+        // (http://dreamsteep.com/projects/the-english-open-word-list.html)
+        // Consists of lower-case words between 5 and 10 characters long
+        // Any newline-separated list of words should work, but this program has been designed to handle
+        // words no longer than 10 characters.
         URL listFile = Hangman.class.getResource("/wordlist.txt");
         WordList dict = new WordList(listFile);
         return dict.selectWord();
@@ -85,13 +88,10 @@ public class Hangman {
     public static void playGame(HangCanvas window, JFrame frame){
         // Create scanner for input
         Scanner scan = new Scanner(System.in);
+        
         // Initial prompt will come up at the same time as the start/rules screen
         System.out.println("Do you want to play a game? ('p' to play, 'q' to quit)");        
 
-        // Netbeans complains that this assigned value for guessWord is never used,
-        // but if I don't assign something here, it complains harder later.
-        String guessWord = "";
-        
         String input = getInput(scan);
         // If we get anything other than p/P, just exit.
         if (!input.toLowerCase().equals("p")){
@@ -102,7 +102,7 @@ public class Hangman {
             // Tell the canvas we're going past the startup screen
             window.setGameStarted(true);
             // Give the canvas a random word and its length
-            guessWord = prepareWord();
+            String guessWord = prepareWord();
             window.setWord(guessWord);
             window.setWordLength(guessWord.length());
             // Set up an array of 0s equal to the word length
@@ -110,63 +110,42 @@ public class Hangman {
             // Refresh the display
             window.repaint();
         }
+        
             
 
         // Main game logic starts here
-        // Keep track of incorrect guesses
-        int failCount = 0;
         // Loop the letter-guessing part until player guesses wrong too many times (or wins, which will break out).
-        while(failCount < 6){
+        while(window.failCount < window.getMAX_WRONG()){
             // Prompt for and get input of (hopefully) a letter
             System.out.println("Pick a letter (a-z):");
             input = getInput(scan);
             // If the letter entered is not in the secret word...
-            if (!guessWord.contains(input)){
+            if (!window.getWord().contains(input)){
                 // "01" is the value returned by getInput if the user just hit "enter" and gave us an empty string.
                 if(!input.equals("01")){
                     // If the guess was wrong and not empty, put it in the wrongGuesses array for display
-                    window.setWrongGuess(failCount, input);
+                    window.setWrongGuess(window.failCount, input);
                 }
                 // Guess was wrong, so increment the fail counter.
-                failCount++;
-                // This switch will tell the canvas to draw the appropriate body part each time the number
-                // of incorrect guesses goes up, refresh the display, and say something in the console.
-                switch (failCount) {
-                    case 1:
-                        window.setMakeHead(true);
-                        window.repaint();
-                        System.out.print("Nope! Here's your head! ");
-                        break;
-                    case 2:
-                        window.setMakeTorso(true);
-                        window.repaint();
-                        System.out.print("Nope! Here's your body! ");
-                        break;
-                    case 3:
-                        window.setMakeArmL(true);
-                        window.repaint();
-                        System.out.print("Nope! Here's your arm! ");
-                        break;
-                    case 4:
-                        window.setMakeArmR(true);
-                        window.repaint();
-                        System.out.print("Nope! Here's your other arm! ");
-                        break;
-                    case 5:
-                        window.setMakeLegL(true);
-                        window.repaint();
-                        System.out.print("Nope! Here's your leg! One more chance! ");
-                        break;
-                    case 6:
-                        window.setMakeLegR(true);
-                        window.repaint();
-                        System.out.print("Last leg! Game over! ");
-                        // At this point the player has lost the game. Add one to the loss tracker.
-                        window.addLoss();
-                        break;
-                    default:
-                        break;
+                window.failCount++;
+           
+                // Array of strings to be printed at each wrong guess
+                String[] nopes = {"Nope! Here's your head! ",
+                                  "Nope! Here's your body! ",
+                                  "Nope! Here's your arm! ",
+                                  "Nope! Here's your other arm! ",
+                                  "Nope! Here's your leg! One more chance! ",
+                                  "Last leg! Game over! "};
+                
+                // Repaint the window (HangCanvas will handle which parts to draw)
+                window.repaint();
+                // Print the appropriate string
+                System.out.print(nopes[window.failCount-1]);
+                // If we get to 6 failed guesses, that's a loss. Show the word and add a loss.
+                if(window.failCount == 6){
+                    window.addLoss();
                 }
+
             }else{
                 // If we got here, the entered letter is in the word!
                 int i;
@@ -174,8 +153,8 @@ public class Hangman {
                 // regardless how often it appears in the word.
                 boolean alreadyPrinted = false;
                 // Find the letter every time it appears
-                for (i=0; i<guessWord.length(); i++){
-                    String checkLetter = String.valueOf(guessWord.charAt(i));
+                for (i=0; i<window.getWord().length(); i++){
+                    String checkLetter = String.valueOf(window.getWord().charAt(i));
                     if (input.equals(checkLetter)){
                         // Set the corresponding position in the correctLetters array to 1
                         // That position in the word can now be drawn

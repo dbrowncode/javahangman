@@ -14,22 +14,38 @@ import static java.awt.Font.PLAIN;
  */
 public class HangCanvas extends Canvas{
     
+    // gameStarted will be true when we get past the startup screen
     private boolean gameStarted = false;
+    
+    // X and Y values for the top-left of the gallows; a lot of the drawing positioning is based on this
     private final int gallowsX = 460;
     private final int gallowsY = 40;
-    private boolean makeHead = false;
-    private boolean makeTorso = false;
-    private boolean makeArmL = false;
-    private boolean makeArmR = false;
-    private boolean makeLegL = false;
-    private boolean makeLegR = false;
+    
+    // Maximum number of wrong guesses before a game loss occurs
+    private final int MAX_WRONG = 6;
+    
+    // Public counter of the current number of wrong guesses
+    public int failCount = 0;
+    
+    // How long is the word?
     private int wordLength = 0;
+    
+    // What is the word? Should always get set elsewhere, arbitrary default here.
     private String word = "a";
+    
+    // Integer array to represent positions of correctly guessed letters.
+    // Initially all 0s; when a letter is correctly guessed, each position it appears in will be set to 1.
     private int[] correctLetters;
-    private String[] wrongGuesses = new String[6];
+    
+    // Array to hold the incorrect guesses for display
+    private String[] wrongGuesses = new String[this.MAX_WRONG];
+    
+    // Selection of fonts for the display
     private final Font hangFont = new Font("Courier New", PLAIN, 28);
     private final Font smallerFont = new Font("Courier New", PLAIN, 20);
     private final Font smallestFont = new Font("Courier New", PLAIN, 16);
+    
+    // Session score tracking and repeat playing options
     private static int numWins = 0;
     private static int numLosses = 0;
     private boolean keepPlaying = false;
@@ -47,16 +63,11 @@ public class HangCanvas extends Canvas{
      */
     public void resetState(){
         this.gameStarted = false;
-        this.makeHead = false;
-        this.makeTorso = false;
-        this.makeArmL = false;
-        this.makeArmR = false;
-        this.makeLegL = false;
-        this.makeLegR = false;
         this.wordLength = 0;
         this.word = "a";
-        this.wrongGuesses = new String[6];
+        this.wrongGuesses = new String[this.MAX_WRONG];
         this.keepPlaying = false;
+        this.failCount = 0;
         this.repaint();
     }
 
@@ -69,67 +80,13 @@ public class HangCanvas extends Canvas{
         this.gameStarted = gameStarted;
     }  
 
-
     /**
-     * Tell the canvas if it should draw the head.
-     * 
-     * @param makeHead - set to true if head should be drawn.
-     */
-    public void setMakeHead(boolean makeHead) {
-        this.makeHead = makeHead;
-    }
-
-
-
-    /**
-     * Tell the canvas if it should draw the torso.
-     * 
-     * @param makeTorso - set to true if torso should be drawn.
-     */
-    public void setMakeTorso(boolean makeTorso) {
-        this.makeTorso = makeTorso;
-    }
-
-
-    /**
-     * Tell the canvas if it should draw the left arm.
+     * Return true if the game has started (past start screen).
      *
-     * @param makeArmL - set to true if the left arm should be drawn.
+     * @return isGameStarted - true if we are past the start screen
      */
-    public void setMakeArmL(boolean makeArmL) {
-        this.makeArmL = makeArmL;
-    }
-
-
-
-    /**
-     * Tell the canvas if it should draw the right arm.
-     *
-     * @param makeArmR - set to true if the right arm should be drawn.
-     */
-    public void setMakeArmR(boolean makeArmR) {
-        this.makeArmR = makeArmR;
-    }
-
-
-
-    /**
-     * Tell the canvas if it should draw the left leg.
-     * 
-     * @param makeLegL - set to true if the left leg should be drawn.
-     */
-    public void setMakeLegL(boolean makeLegL) {
-        this.makeLegL = makeLegL;
-    }
-
-
-    /**
-     * Tell the canvas if it should draw the right leg.
-     *
-     * @param makeLegR - set to true if the right leg should be drawn.
-     */
-    public void setMakeLegR(boolean makeLegR) {
-        this.makeLegR = makeLegR;
+    public boolean isGameStarted() {
+        return gameStarted;
     }
 
     /**
@@ -142,12 +99,30 @@ public class HangCanvas extends Canvas{
     }
 
     /**
+     * Get the word to be guessed
+     *
+     * @return word - the word.
+     */
+    public String getWord() {
+        return word;
+    }
+
+    /**
      * Tell the canvas how long the word is.
      *
      * @param wordLength - length of the secret word.
      */
     public void setWordLength(int wordLength) {
         this.wordLength = wordLength;
+    }
+
+    /**
+     * Get the maximum wrong guesses.
+     *
+     * @return MAX_WRONG - maximum number of incorrect guesses.
+     */
+    public int getMAX_WRONG() {
+        return MAX_WRONG;
     }
 
     /**
@@ -207,6 +182,20 @@ public class HangCanvas extends Canvas{
     }
 
     /**
+     * @return numWins - number of wins so far
+     */
+    public static int getNumWins() {
+        return numWins;
+    }
+
+    /**
+     * @return numLosses - number of losses so far
+     */
+    public static int getNumLosses() {
+        return numLosses;
+    }
+
+    /**
      * Find out whether to start another game.
      *
      * @return keepPlaying - will be true if the user wanted to play again.
@@ -243,25 +232,28 @@ public class HangCanvas extends Canvas{
             drawLetters(g);
             drawWrongGuesses(g);
             drawScoreboard(g);
-
-            if(makeHead){
-                int halfHead = 20;
-                drawHead(g, this.gallowsX, this.gallowsY, halfHead);
-                if(makeTorso){
-                    drawTorso(g, this.gallowsX, this.gallowsY);
-                    if(makeArmL){
-                        drawArmL(g, this.gallowsX, this.gallowsY);
-                        if(makeArmR){
-                            drawArmR(g, this.gallowsX, this.gallowsY);
-                            if(makeLegL){
-                                drawLegL(g, this.gallowsX, this.gallowsY);
-                                if(makeLegR){
-                                    drawLegR(g, this.gallowsX, this.gallowsY);
-                                }
-                            }
-                        }
+            
+            // Switch intentionally will fall through each state if the failCount is high enough
+            switch(this.failCount){
+                case 6:
+                    drawLegR(g, this.gallowsX, this.gallowsY);
+                    // At this point the game has been lost; set all letters to correct so we can easily print them.
+                    for (int i = 0; i<this.wordLength; i++){
+                        setCorrectLetter(i);
                     }
-                }
+                    drawLetters(g);
+                case 5:
+                    drawLegL(g, this.gallowsX, this.gallowsY);
+                case 4:
+                    drawArmR(g, this.gallowsX, this.gallowsY);
+                case 3:
+                    drawArmL(g, this.gallowsX, this.gallowsY);
+                case 2:
+                    drawTorso(g, this.gallowsX, this.gallowsY);
+                case 1:
+                    drawHead(g, this.gallowsX, this.gallowsY, 20);
+                default:
+                    break;
             }
         }
     }
@@ -298,7 +290,8 @@ public class HangCanvas extends Canvas{
         g.drawString("Guess the secret word, one letter", 25, this.gallowsY+70);
         g.drawString("at a time. Bad guesses will add", 25, this.gallowsY+90);
         g.drawString("body parts to the gallows!", 25, this.gallowsY+110);
-        g.drawString("Guess only letters a-z.", 25, this.gallowsY+130);
+        g.drawString("Words consist of 5-10 lowercase", 25, this.gallowsY+130);
+        g.drawString("letters from a-z.", 25, this.gallowsY+150);
     }
     
     /**
